@@ -1,0 +1,21 @@
+{
+  "root": true,
+  "extends": ["next/core-web-vitals"],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    // Allow Tailwind arbitrary values and CSS variables without inline style props
+    "react/forbid-dom-props": ["error", { "forbid": ["style"] }],
+
+    // Relax some rules that conflict with existing code style
+    "@next/next/no-img-element": "off",
+    "react/no-unescaped-entities": "off"
+  },
+  "ignorePatterns": [
+    ".next/**/*",
+    "node_modules/**/*",
+    "types/**/*",
+    "vite.config.ts",
+    "src/main.tsx"
+  ]
+}

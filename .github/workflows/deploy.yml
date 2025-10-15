@@ -1,0 +1,250 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests (emergency deploy)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run TypeScript check
+        if: ${{ !inputs.skip_tests }}
+        run: npm run typecheck
+        
+      - name: Run linter
+        if: ${{ !inputs.skip_tests }}
+        run: npm run lint -- --max-warnings 50
+        continue-on-error: true
+        
+      - name: Run tests
+        if: ${{ !inputs.skip_tests }}
+        run: npm test
+        
+      - name: Build production bundle
+        run: npm run build
+        env:
+          NODE_ENV: production
+          
+      - name: Create deployment artifact
+        run: |
+          mkdir -p dist
+          
+          # Copy built files
+          cp -r .next dist/
+          cp -r public dist/
+          cp -r pages dist/
+          cp -r src dist/
+          
+          # Copy configs
+          cp package.json package-lock.json dist/
+          cp next.config.js dist/
+          cp tsconfig.json dist/ 2>/dev/null || true
+          
+          # Create ecosystem config
+          cat > dist/ecosystem.config.js << 'EOF'
+          module.exports = {
+            apps: [{
+              name: 'valt-hr-suite',
+              script: 'node_modules/next/dist/bin/next',
+              args: 'start',
+              cwd: '/var/www/valt-hr-suite',
+              instances: 2,
+              exec_mode: 'cluster',
+              env: {
+                NODE_ENV: 'production',
+                PORT: 3000
+              },
+              error_file: '/var/log/valt-hr-suite/error.log',
+              out_file: '/var/log/valt-hr-suite/out.log',
+              log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+              merge_logs: true,
+              autorestart: true,
+              watch: false,
+              max_memory_restart: '1G'
+            }]
+          };
+          EOF
+          
+          # Create env template
+          cat > dist/.env.production << 'EOF'
+          NODE_ENV=production
+          PORT=3000
+          NEXT_PUBLIC_APP_NAME=Valt HR Suite
+          NEXT_PUBLIC_API_BASE_URL=https://hr-suite.valtara.ai
+          LEADCONNECTOR_WIDGET_ID=67ff121f119caa7e6578236b
+          EOF
+          
+          # Create artifact
+          cd dist
+          ARTIFACT_NAME="valt-hr-suite-${{ github.sha }}.tar.gz"
+          tar -czf ../${ARTIFACT_NAME} .
+          cd ..
+          
+          echo "ARTIFACT_NAME=${ARTIFACT_NAME}" >> $GITHUB_ENV
+          
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          
+      - name: Pre-deployment backup
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_IP }} \
+            "if [ -d /var/www/valt-hr-suite ]; then \
+               TIMESTAMP=\$(date +%Y%m%d-%H%M%S); \
+               sudo cp -r /var/www/valt-hr-suite /var/www/valt-hr-suite.backup-ci-\${TIMESTAMP}; \
+               echo 'Backup created: valt-hr-suite.backup-ci-'\${TIMESTAMP}; \
+             fi"
+          
+      - name: Upload artifact
+        run: |
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ env.ARTIFACT_NAME }} \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_IP }}:/tmp/
+            
+      - name: Deploy application
+        id: deploy
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_IP }} << 'ENDSSH'
+          set -e
+          
+          APP_DIR="/var/www/valt-hr-suite"
+          ARTIFACT="/tmp/${{ env.ARTIFACT_NAME }}"
+          
+          echo "🚀 Starting deployment..."
+          
+          # Create app directory if first deploy
+          mkdir -p ${APP_DIR}
+          
+          # Extract artifact
+          echo "📦 Extracting artifact..."
+          cd ${APP_DIR}
+          tar -xzf ${ARTIFACT}
+          
+          # Install production dependencies
+          echo "📦 Installing dependencies..."
+          npm ci --production --ignore-scripts
+          
+          # Reload PM2
+          echo "🔄 Reloading PM2..."
+          if pm2 describe valt-hr-suite > /dev/null 2>&1; then
+            pm2 reload valt-hr-suite --update-env
+          else
+            pm2 start ecosystem.config.js --env production
+          fi
+          pm2 save
+          
+          echo "✓ Deployment complete"
+          ENDSSH
+          
+      - name: Wait for application startup
+        run: sleep 10
+        
+      - name: Health check
+        id: health_check
+        run: |
+          RETRIES=5
+          DELAY=5
+          URL="https://hr-suite.valtara.ai/api/health"
+          
+          for i in $(seq 1 $RETRIES); do
+            echo "Health check attempt $i/$RETRIES..."
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${URL} || echo "000")
+            
+            if [ "$STATUS" = "200" ]; then
+              echo "✓ Health check passed (HTTP $STATUS)"
+              exit 0
+            fi
+            
+            echo "⚠️  Health check failed (HTTP $STATUS)"
+            if [ $i -lt $RETRIES ]; then
+              echo "Waiting ${DELAY}s before retry..."
+              sleep $DELAY
+            fi
+          done
+          
+          echo "❌ Health check failed after $RETRIES attempts"
+          exit 1
+          
+      - name: Rollback on failure
+        if: failure() && steps.deploy.outcome == 'success'
+        run: |
+          echo "🔄 Rolling back deployment..."
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_IP }} << 'ENDSSH'
+          set -e
+          
+          # Find latest backup
+          LATEST_BACKUP=$(ls -td /var/www/valt-hr-suite.backup-ci-* 2>/dev/null | head -n1)
+          
+          if [ -z "$LATEST_BACKUP" ]; then
+            echo "❌ No backup found for rollback"
+            exit 1
+          fi
+          
+          echo "📦 Rolling back to: ${LATEST_BACKUP}"
+          
+          # Stop current app
+          pm2 stop valt-hr-suite || true
+          
+          # Restore backup
+          rm -rf /var/www/valt-hr-suite/*
+          cp -r ${LATEST_BACKUP}/* /var/www/valt-hr-suite/
+          
+          # Restart
+          cd /var/www/valt-hr-suite
+          pm2 restart valt-hr-suite
+          pm2 save
+          
+          echo "✓ Rollback complete"
+          ENDSSH
+          
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "✨ Deployment successful!"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "URL: https://hr-suite.valtara.ai"
+          
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed!"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Check logs for details"
+          
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f ~/.ssh/deploy_key
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_IP }} \
+            "rm -f /tmp/${{ env.ARTIFACT_NAME }}" || true
