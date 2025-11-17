@@ -1,23 +1,25 @@
 import {
-    ArrowLeft,
-    BarChart3,
-    Brain,
-    Calendar,
-    ChevronRight,
-    FileCheck,
-    FileText,
-    Home,
-    LogOut,
-    MessageSquare,
-    Phone,
-    Search,
-    Settings,
-    Target,
-    TrendingUp,
-    UserCheck,
-    UserPlus,
-    Users
+  ArrowLeft,
+  BarChart3,
+  Brain,
+  Calendar,
+  ChevronRight,
+  FileCheck,
+  FileText,
+  Home,
+  LogOut,
+  MessageSquare,
+  Phone,
+  Search,
+  Settings,
+  Target,
+  TrendingUp,
+  UserCheck,
+  UserPlus,
+  Users
 } from "lucide-react";
+import Link from "next/link";
+import BrandLogo from "./BrandLogo";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
@@ -77,6 +79,10 @@ export function NavigationBar({
       {/* Top Navigation Row */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
+          {/* Brand / Logo */}
+          <Link href="/" aria-label="Valtara Home" className="shrink-0">
+            <BrandLogo />
+          </Link>
           {/* Back Button */}
           {canGoBack && (
             <Button
