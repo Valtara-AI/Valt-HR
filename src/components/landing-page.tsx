@@ -16,6 +16,7 @@ import {
   Zap
 } from "lucide-react";
 import { toast } from "sonner";
+import BrandLogo from "./BrandLogo";
 import { ThemeToggle } from "./theme-toggle";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -160,8 +161,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-semibold">HR</span>
+              <div className="h-10 w-10 rounded-xl overflow-hidden">
+                <BrandLogo width={40} height={40} />
               </div>
               <div>
                 <span className="font-semibold text-lg">Valt HR Suite</span>

@@ -1,26 +1,27 @@
 import {
-    Bell,
-    HelpCircle,
-    LogOut,
-    Search,
-    Settings as SettingsIcon,
-    Shield,
-    User,
-    UserCircle
+  Bell,
+  HelpCircle,
+  LogOut,
+  Search,
+  Settings as SettingsIcon,
+  Shield,
+  User,
+  UserCircle
 } from "lucide-react";
-import Image from 'next/image';
+// Image component removed; BrandLogo used instead
 import { toast } from "sonner";
+import BrandLogo from "./BrandLogo";
 import { ThemeToggle } from "./theme-toggle";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Input } from "./ui/input";
 
@@ -91,8 +92,8 @@ export function DashboardHeader({ onOpenModal: _onOpenModal, onNavigateToSection
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-medium">HR</span>
+            <div className="h-8 w-8 rounded-lg overflow-hidden">
+              <BrandLogo width={32} height={32} />
             </div>
             <span className="font-semibold">Valt HR Suite</span>
           </div>
@@ -136,7 +137,7 @@ export function DashboardHeader({ onOpenModal: _onOpenModal, onNavigateToSection
                 aria-label="Open user profile menu"
               >
                 <Avatar className="h-8 w-8">
-                  <Image src="/placeholder-avatar.svg" alt="User avatar" width={32} height={32} className="rounded-full object-cover" />
+                  <BrandLogo width={32} height={32} />
                   <AvatarFallback>SJ</AvatarFallback>
                 </Avatar>
               </Button>
@@ -146,7 +147,7 @@ export function DashboardHeader({ onOpenModal: _onOpenModal, onNavigateToSection
                 <div className="flex flex-col space-y-2">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                      <Image src="/placeholder-avatar.svg" alt="User avatar" width={40} height={40} className="rounded-full object-cover" />
+                      <BrandLogo width={40} height={40} />
                       <AvatarFallback>SJ</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
