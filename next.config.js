@@ -8,9 +8,10 @@ const csp = [
   "default-src 'self'",
   // In dev, Next/React tooling may use eval; disable it in production.
   // Allow LeadConnector domains: widgets for main script, stcdn for assets, services for user session
-  `script-src 'self'${isProd ? '' : " 'unsafe-eval'"} https://widgets.leadconnectorhq.com https://stcdn.leadconnectorhq.com https://services.leadconnectorhq.com`,
+  // Also allow cdn.socket.io for the chat widget's real-time functionality
+  `script-src 'self'${isProd ? '' : " 'unsafe-eval'"} https://widgets.leadconnectorhq.com https://stcdn.leadconnectorhq.com https://services.leadconnectorhq.com https://cdn.socket.io`,
   // Allow websockets for dev tools and any widget live connections.
-  "connect-src 'self' https://widgets.leadconnectorhq.com https://*.leadconnectorhq.com wss:",
+  "connect-src 'self' https://widgets.leadconnectorhq.com https://*.leadconnectorhq.com https://cdn.socket.io wss:",
   // Allow all https images plus data/blob for charts/avatars.
   "img-src 'self' data: blob: https:",
   // Keep inline styles (see note above) and fonts from self/data/https.
