@@ -1,0 +1,553 @@
+// Prisma schema for HR Workflow Assistant System
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== PHASE 1: Job Sourcing & Posting =====
+model Job {
+  id               String   @id @default(cuid())
+  title            String
+  department       String
+  location         String
+  type             String   // full-time, part-time, contract
+  description      String   @db.Text
+  requirements     Json     // skills, experience, education
+  salaryMin        Int?
+  salaryMax        Int?
+  status           String   @default("active") // active, paused, closed
+  postedAt         DateTime @default(now())
+  closedAt         DateTime?
+  
+  // Sourcing channels
+  linkedinPosted   Boolean  @default(false)
+  indeedPosted     Boolean  @default(false)
+  glassdoorPosted  Boolean  @default(false)
+  companyPagePosted Boolean @default(false)
+  
+  createdBy        String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  applications     Application[]
+  
+  @@index([status, postedAt])
+  @@index([department])
+}
+
+// ===== PHASE 2: Application Processing =====
+model Candidate {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  firstName         String
+  lastName          String
+  phone             String?
+  location          String?
+  linkedinUrl       String?
+  portfolioUrl      String?
+  
+  // Resume data
+  resumeUrl         String?
+  resumeParsedData  Json?    // structured parsed resume
+  skills            String[] // extracted skills
+  experience        Json[]   // work history array
+  education         Json[]   // education array
+  
+  // Status
+  source            String   // linkedin, job-board, referral, direct
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  applications      Application[]
+  assessmentResults AssessmentResult[]
+  interviews        Interview[]
+  
+  @@index([email])
+  @@index([createdAt])
+}
+
+model Application {
+  id                 String   @id @default(cuid())
+  candidateId        String
+  jobId              String
+  
+  // Pipeline stage
+  stage              String   @default("resume-parsing") 
+  // Stages: resume-parsing, resume-scoring, social-validation, assessment-1, assessment-2, ai-interview, human-interview, offer, rejected
+  
+  status             String   @default("active") // active, paused, rejected, hired
+  
+  // Phase 2: Processing
+  resumeParsed       Boolean  @default(false)
+  duplicateChecked   Boolean  @default(false)
+  isDuplicate        Boolean  @default(false)
+  validationErrors   Json?
+  
+  // Phase 3: Evaluation - Score breakdown
+  resumeScore        Float?   // 0-100 overall
+  skillsScore        Float?   // 0-100 skills component (40% weight)
+  experienceScore    Float?   // 0-100 experience component (30% weight)
+  educationScore     Float?   // 0-100 education component (20% weight)
+  otherScore         Float?   // 0-100 other factors component (10% weight)
+  
+  // Phase 3: Scoring details
+  scoringDetails     Json?    // Full explainable breakdown
+  scoringVersion     String?  // Algorithm version used
+  scoredAt           DateTime?
+  scoredBy           String?  // system or user ID
+  
+  // Phase 3: Social/enrichment
+  socialScore        Float?   // LinkedIn, social presence
+  linkedInEnriched   Boolean  @default(false)
+  enrichmentData     Json?    // Data from LinkedIn enrichment
+  
+  // Phase 3: Background validation
+  backgroundCheckStatus String? // pending, clear, concerns, manual_review
+  backgroundCheckId  String?
+  
+  // Phase 3: Red flags and issues
+  redFlags           Json?    // array of detected issues with severity
+  redFlagCount       Int      @default(0)
+  
+  overallScore       Float?   // combined score with all factors
+  scoreCategory      String?  // Exceptional, Strong, Qualified, Not Qualified
+  
+  appliedAt          DateTime @default(now())
+  lastProgressAt     DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  
+  candidate          Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job                Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  assessmentResults  AssessmentResult[]
+  interviews         Interview[]
+  notifications      Notification[]
+  
+  @@unique([candidateId, jobId])
+  @@index([stage, status])
+  @@index([jobId, stage])
+  @@index([overallScore])
+  @@index([scoreCategory])
+}
+
+// ===== PHASE 4: AI-Powered Assessments =====
+model Assessment {
+  id               String   @id @default(cuid())
+  name             String
+  type             String   // technical, cognitive, communication, culture-fit, behavioral
+  phase            Int      // 1 or 2
+  department       String?
+  role             String?
+  
+  questions        Json     // array of questions with metadata
+  timeLimit        Int      // minutes
+  passingScore     Float    // 0-100
+  
+  // Weights
+  technicalWeight  Float    @default(40)
+  cognitiveWeight  Float    @default(30)
+  communicationWeight Float @default(20)
+  cultureFitWeight Float    @default(10)
+  
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  results          AssessmentResult[]
+  
+  @@index([phase, isActive])
+}
+
+model AssessmentResult {
+  id               String   @id @default(cuid())
+  applicationId    String
+  candidateId      String
+  assessmentId     String
+  
+  phase            Int      // 1 or 2
+  status           String   @default("pending") // pending, in-progress, completed, expired
+  
+  // Responses and scoring
+  answers          Json?    // array of answers
+  technicalScore   Float?
+  cognitiveScore   Float?
+  communicationScore Float?
+  cultureFitScore  Float?
+  overallScore     Float?
+  
+  // Metadata
+  startedAt        DateTime?
+  completedAt      DateTime?
+  timeSpent        Int?     // seconds
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  application      Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  candidate        Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  assessment       Assessment  @relation(fields: [assessmentId], references: [id])
+  
+  @@index([applicationId, phase])
+  @@index([candidateId])
+}
+
+// ===== PHASE 5: Interview Process =====
+model Interview {
+  id                String   @id @default(cuid())
+  applicationId     String
+  candidateId       String
+  
+  type              String   // ai-phone, human-phone, video, in-person
+  status            String   @default("scheduled") // scheduled, in-progress, completed, cancelled, no-show
+  
+  scheduledAt       DateTime?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  duration          Int?     // minutes
+  
+  // AI Interview data
+  transcript        String?  @db.Text
+  transcriptAnalysis Json?  // keywords, sentiment, clarity score
+  aiScore           Float?
+  
+  // Human Interview data
+  interviewerName   String?
+  interviewerEmail  String?
+  interviewNotes    String?  @db.Text
+  interviewRating   Float?   // 1-10
+  recommendation    String?  // strong-yes, yes, maybe, no, strong-no
+  
+  // Combined
+  overallScore      Float?
+  recordingUrl      String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  application       Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  candidate         Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  
+  @@index([applicationId, type])
+  @@index([scheduledAt])
+}
+
+// ===== PHASE 6: CRM Integration & Notifications =====
+model CRMSync {
+  id                String   @id @default(cuid())
+  applicationId     String
+  
+  system            String   // workday, greenhouse, bamboohr
+  externalId        String?  // ID in external system
+  
+  lastSyncAt        DateTime?
+  syncStatus        String   @default("pending") // pending, synced, failed
+  syncData          Json?
+  errorMessage      String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([system, externalId])
+}
+
+model Notification {
+  id                String   @id @default(cuid())
+  applicationId     String?
+  
+  recipient         String   // email
+  recipientType     String   // candidate, hiring-manager, recruiter
+  
+  type              String   // application-received, assessment-ready, interview-scheduled, status-update
+  channel           String   // email, sms
+  
+  subject           String?
+  body              String   @db.Text
+  
+  status            String   @default("pending") // pending, sent, failed
+  sentAt            DateTime?
+  errorMessage      String?
+  
+  createdAt         DateTime @default(now())
+  
+  application       Application? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+  
+  @@index([status, createdAt])
+  @@index([recipientType, createdAt])
+}
+
+// ===== Extended Features: Onboarding, Performance, Talent Development =====
+model Employee {
+  id                String   @id @default(cuid())
+  candidateId       String?  @unique
+  
+  email             String   @unique
+  firstName         String
+  lastName          String
+  department        String
+  role              String
+  managerId         String?
+  
+  hireDate          DateTime
+  status            String   @default("active") // active, on-leave, terminated
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  onboarding        Onboarding?
+  performanceReviews PerformanceReview[]
+  developmentPlans  DevelopmentPlan[]
+  
+  @@index([department, status])
+}
+
+model Onboarding {
+  id                String   @id @default(cuid())
+  employeeId        String   @unique
+  
+  status            String   @default("pending") // pending, in-progress, completed
+  
+  // Document collection
+  documentsCollected Boolean  @default(false)
+  documentsVerified Boolean  @default(false)
+  
+  // System provisioning
+  systemAccessProvisioned Boolean @default(false)
+  equipmentAssigned Boolean  @default(false)
+  
+  // Training
+  trainingScheduled Boolean  @default(false)
+  trainingCompleted Boolean  @default(false)
+  
+  // Buddy program
+  buddyAssigned     Boolean  @default(false)
+  buddyName         String?
+  
+  // Check-ins
+  day30CheckIn      DateTime?
+  day60CheckIn      DateTime?
+  day90CheckIn      DateTime?
+  
+  startDate         DateTime
+  completedAt       DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  employee          Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model PerformanceReview {
+  id                String   @id @default(cuid())
+  employeeId        String
+  
+  reviewPeriod      String   // Q1-2025, H1-2025, Annual-2025
+  reviewType        String   // quarterly, annual, probation
+  
+  status            String   @default("pending") // pending, in-progress, completed
+  
+  selfReview        Json?
+  managerReview     Json?
+  peerFeedback      Json?    // array
+  
+  overallRating     Float?   // 1-5
+  goals             Json?    // array of goals
+  developmentAreas  Json?    // array
+  
+  reviewDate        DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  employee          Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  @@index([employeeId, reviewPeriod])
+}
+
+model DevelopmentPlan {
+  id                String   @id @default(cuid())
+  employeeId        String
+  
+  title             String
+  description       String   @db.Text
+  
+  skillGaps         Json     // array of skills to develop
+  learningPath      Json     // courses, certifications, etc.
+  milestones        Json     // array of milestones
+  
+  status            String   @default("active") // active, completed, cancelled
+  progress          Float    @default(0) // 0-100
+  
+  startDate         DateTime
+  targetDate        DateTime
+  completedAt       DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  employee          Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  @@index([employeeId, status])
+}
+
+// ===== Phase 3: Score Audit Trail =====
+model ScoreAuditLog {
+  id                String   @id @default(cuid())
+  
+  candidateId       String
+  applicationId     String?
+  jobId             String?
+  
+  // Score change tracking
+  previousScore     Float?
+  newScore          Float
+  scoreChange       Float?   // difference
+  
+  // Breakdown
+  previousBreakdown Json?    // { skills, experience, education, other }
+  newBreakdown      Json     // { skills, experience, education, other }
+  
+  // Actor information
+  actorType         String   // system, user, admin
+  actorId           String?  // user ID if manual
+  actorName         String?  // human-readable name
+  
+  // Action details
+  action            String   // auto-score, manual-override, recalculation, enrichment-adjustment
+  reason            String?  // for manual overrides
+  
+  // Provenance
+  scoringVersion    String   // version of scoring algorithm
+  dataSourcesUsed   Json     // array of data sources
+  algorithmDetails  Json?    // weights, fuzzy matching info, etc.
+  
+  // Explainability
+  explanation       Json     // detailed breakdown with reasons
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([candidateId, createdAt])
+  @@index([applicationId])
+  @@index([actorType, createdAt])
+  @@index([action, createdAt])
+}
+
+// ===== Phase 3: Background Check Records =====
+model BackgroundCheck {
+  id                String   @id @default(cuid())
+  
+  candidateId       String
+  applicationId     String?
+  
+  checkId           String   @unique // external check ID
+  provider          String   // checkr, trulioo, sterling, manual
+  checkType         String   // identity, employment, education, criminal, comprehensive
+  
+  status            String   @default("pending") // pending, in_progress, clear, concerns, failed, expired, manual_review
+  
+  // Consent tracking
+  consentProvided   Boolean
+  consentTimestamp  DateTime?
+  consentMethod     String?  // electronic, paper, verbal
+  consentIpAddress  String?
+  
+  // Results
+  findings          Json?    // array of findings
+  summary           String?
+  verified          Boolean  @default(false)
+  
+  // Manual review
+  manualReviewRequired Boolean @default(false)
+  manualReviewNotes    String?
+  reviewedBy           String?
+  reviewedAt           DateTime?
+  
+  requestedAt       DateTime @default(now())
+  completedAt       DateTime?
+  expiresAt         DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([candidateId])
+  @@index([applicationId])
+  @@index([status])
+  @@index([provider, status])
+}
+
+// ===== Phase 3: LinkedIn Enrichment Records =====
+model LinkedInEnrichment {
+  id                String   @id @default(cuid())
+  
+  candidateId       String
+  
+  profileUrl        String
+  profileId         String?
+  
+  // Consent
+  consentProvided   Boolean
+  consentTimestamp  DateTime?
+  
+  // Profile data
+  profileData       Json?    // headline, summary, location, industry
+  completenessScore Float?
+  presenceScore     Float?
+  
+  // Metrics
+  connectionCount   Int?
+  followerCount     Int?
+  endorsementCount  Int?
+  recommendationCount Int?
+  
+  // Activity
+  postsLastMonth    Int?
+  isActive          Boolean?
+  
+  // Score impact
+  enrichmentScore   Float?
+  scoreImpact       Float?   // +/- adjustment to candidate score
+  
+  source            String   // api, clearbit, apollo, mock
+  fetchedAt         DateTime @default(now())
+  expiresAt         DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([candidateId])
+  @@unique([candidateId, profileUrl])
+}
+
+// ===== System & Analytics =====
+model SystemLog {
+  id                String   @id @default(cuid())
+  
+  level             String   // info, warn, error
+  service           String   // resume-parser, scoring-engine, notification-service, etc.
+  action            String
+  details           Json?
+  
+  userId            String?
+  ipAddress         String?
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([service, level, createdAt])
+  @@index([createdAt])
+}
+
+model Analytics {
+  id                String   @id @default(cuid())
+  
+  metric            String   // time-to-hire, quality-of-hire, cost-per-hire, etc.
+  value             Float
+  metadata          Json?
+  
+  period            String   // daily, weekly, monthly
+  date              DateTime
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([metric, date])
+}
