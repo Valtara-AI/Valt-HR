@@ -177,7 +177,8 @@ export class AssessmentService {
       throw new Error('Assessment already submitted');
     }
 
-    if (new Date() > assessment.expiresAt) {
+    // Replace the old if statement with this one
+    if (assessment.expiresAt && new Date() > assessment.expiresAt) {
       throw new Error('Assessment has expired');
     }
 
