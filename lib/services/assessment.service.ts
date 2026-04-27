@@ -140,20 +140,22 @@ export class AssessmentService {
     const questions = await this.generateAssessment(application.jobId, phase);
 
     // Create assessment
-    const assessment = await prisma.assessment.create({
+     const assessment = await prisma.assessment.create({
       data: {
+        name: "AI Technical Assessment", // Added to fix build
+        type: "technical",               // Added to fix build
+        passingScore: 70.0,              // Added to fix build
         candidateId: application.candidateId,
         jobId: application.jobId,
         phase,
         questions: questions as any,
         totalQuestions: questions.length,
         maxScore: questions.reduce((sum, q) => sum + q.points, 0),
-        timeLimit: phase === 1 ? 60 : 90, // minutes
+        timeLimit: phase === 1 ? 60 : 90,
         status: 'not-started',
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     });
-
     return assessment.id;
   }
 
