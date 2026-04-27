@@ -143,9 +143,13 @@ model Assessment {
   role             String?
 
   // --- ADD THESE NEW FIELDS ---
-  candidateId  String?  // To link to the candidate
-  jobId        String?  // To link to the job
-  applicationId String? // To link to the specific application
+  candidateId  String?     // To link to the candidate
+  jobId        String?     // To link to the job
+  applicationId String?    // To link to the specific application
+  totalQuestions Int?      // To link to total questions
+  maxScore       Float?    // To link to maximum score
+  status         String?   // To link to status
+
   // ----------------------------
 
   questions        Json     // array of questions with metadata
