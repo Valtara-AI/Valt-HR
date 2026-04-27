@@ -151,6 +151,10 @@ model Assessment {
   status         String?   // To link to status
 
   // ----------------------------
+  
+  // --- THE FINAL FIX ---
+  expiresAt      DateTime? // To store expiration date
+  // ----------------------
 
   questions        Json     // array of questions with metadata
   timeLimit        Int      // minutes
