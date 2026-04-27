@@ -141,7 +141,13 @@ model Assessment {
   phase            Int      // 1 or 2
   department       String?
   role             String?
-  
+
+  // --- ADD THESE NEW FIELDS ---
+  candidateId  String?  // To link to the candidate
+  jobId        String?  // To link to the job
+  applicationId String? // To link to the specific application
+  // ----------------------------
+
   questions        Json     // array of questions with metadata
   timeLimit        Int      // minutes
   passingScore     Float    // 0-100
