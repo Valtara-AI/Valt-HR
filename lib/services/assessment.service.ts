@@ -225,7 +225,6 @@ export class AssessmentService {
     }
     // Calculate percentages
     const percentage = (totalScore / maxScore) * 100;
-    const percentage = (totalScore / assessment.maxScore) * 100;
     Object.keys(breakdown).forEach((category) => {
       breakdown[category].percentage =
         (breakdown[category].score / breakdown[category].maxScore) * 100;
