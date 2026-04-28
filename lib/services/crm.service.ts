@@ -51,9 +51,10 @@ export class CRMService {
         candidateSource: candidate.source,
         skills: candidate.skills,
         resumeText: JSON.stringify(candidate.resumeParsedData),
+        
         // Workday-specific fields
-        jobRequisitions: candidate.applications.map((app) => ({
-          requisitionId: app.job.externalId,
+        jobRequisitions: candidate.applications.map((app: any) => ({ // Added : any
+          requisitionId: app.job?.externalId || 'N/A',
           status: app.stage,
         })),
       };
