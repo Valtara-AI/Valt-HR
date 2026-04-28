@@ -180,6 +180,9 @@ model AssessmentResult {
   applicationId    String
   candidateId      String
   assessmentId     String
+  score            Float    // Added to fix line 240
+  maxScore         Float    // Added to fix line 241
+  percentage       Float    // Added to fix line 242
   
   phase            Int      // 1 or 2
   status           String   @default("pending") // pending, in-progress, completed, expired
