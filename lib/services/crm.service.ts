@@ -154,7 +154,8 @@ export class CRMService {
             job_id: application.job.id,
             source_id: null,
             referrer: null,
-            custom_fields: candidate.skills?.map((skill) => ({
+            // Add : any (or : string if it's a simple list) to the skill parameter
+            custom_fields: candidate.skills?.map((skill: any) => ({
               name: 'Skills',
               value: skill,
             })),
