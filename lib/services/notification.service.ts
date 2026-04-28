@@ -131,7 +131,7 @@ export class NotificationService {
   /**
    * Generic email sender
    */
-  private static async sendEmail(
+  public static async sendEmail(
     to: string,
     subject: string,
     htmlBody: string,
