@@ -266,7 +266,7 @@ export class AssessmentService {
     const application = await prisma.application.findFirst({
       where: {
         candidateId: submission.candidateId,
-        jobId: assessment.jobId,
+        jobId: assessment.jobId!,
       },
     });
 
@@ -286,7 +286,7 @@ export class AssessmentService {
       }
 
       await prisma.application.update({
-        where: { id: application.id },
+        where: { id: application!.id },
         data: {
           stage: newStage,
           assessmentScore: totalScore,
