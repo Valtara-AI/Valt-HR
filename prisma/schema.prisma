@@ -184,6 +184,9 @@ model AssessmentResult {
   maxScore       Float     // Added to fix line 241
   percentage     Float     // Added to fix line 242
 
+  // Ensure this field is named 'feedback' and is a String
+  feedback      String?   // This matches line 247 in your service file
+  
   // --- ADD THESE TWO FIELDS TO FIX THE BUILD ERRORS ---
   breakdown      Json?     // Added to fix line 243
   passed         Boolean?  // Added to fix line 246
