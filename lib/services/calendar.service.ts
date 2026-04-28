@@ -251,9 +251,13 @@ export class CalendarService {
           <p>Dear ${interview.candidate.firstName},</p>
           <p>Your interview for <strong>${interview.job.title}</strong> has been cancelled.</p>
           <p>We will reach out if we would like to reschedule.</p>
-          <p>Best regards,<br/>HR Team</p>
-        `
+          <p>Best regards,<br/>Valtara HR Team</p>
+        `,
+        'candidate',           // Argument 4: recipientType
+        'interview-cancelled', // Argument 5: notificationType
+        interview.applicationId // Argument 6: applicationId
       );
+
     } catch (error) {
       console.error('Calendar cancellation error:', error);
       throw new Error('Failed to cancel calendar event');
