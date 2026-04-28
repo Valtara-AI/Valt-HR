@@ -85,18 +85,18 @@ export class CalendarService {
             useDefault: false,
             overrides: [
               { method: 'email', minutes: 24 * 60 }, // 1 day before
-              { method: 'popup', minutes: 60 }, // 1 hour before
-              { method: 'popup', minutes: 15 }, // 15 min before
+              { method: 'popup', minutes: 60 },      // 1 hour before
+              { method: 'popup', minutes: 15 },      // 15 min before
             ],
           },
         },
       });
 
       const calendarEventId = eventResponse.data.id || '';
-      const meetingLink =
-        event.meetingLink ||
-        eventResponse.data.hangoutLink ||
-        eventResponse.data.conferenceData?.entryPoints?.[0]?.uri ||
+      const meetingLink = 
+        event.meetingLink || 
+        eventResponse.data.hangoutLink || 
+        eventResponse.data.conferenceData?.entryPoints?.[0]?.url || 
         '';
 
       // Update interview with calendar info
@@ -107,31 +107,33 @@ export class CalendarService {
           meetingLink,
         },
       });
-      
+
       // Send confirmation emails
       for (const attendee of event.attendees) {
         await NotificationService.sendEmail(
-          attendee.email,                 // 1. to
-          'Interview Scheduled',          // 2. subject
-          'Confirmation: ${event.title}', // 3. htmlBody (or your template string)
-          'candidate',                    // 4. recipientType (Added)
-          'interview-confirmation',       // 5. notificationType (Added)
-           event.applicationId            // 6. applicationId (Added - ensure this exists on your event object)
+          attendee.email,
+          'Interview Scheduled',
+          `
             <h2>Interview Scheduled</h2>
             <p>Dear ${attendee.name},</p>
             <p><strong>${event.summary}</strong></p>
-            <p><strong>Date:</strong> ${event.startTime.toLocaleString()}</p>
+            <p><strong>Date & Time:</strong> ${event.startTime.toLocaleString()}</p>
             <p><strong>Duration:</strong> ${Math.floor((event.endTime.getTime() - event.startTime.getTime()) / 60000)} minutes</p>
             ${meetingLink ? `<p><strong>Meeting Link:</strong> <a href="${meetingLink}">${meetingLink}</a></p>` : ''}
             ${event.location ? `<p><strong>Location:</strong> ${event.location}</p>` : ''}
             <p>${event.description}</p>
             <p>A calendar invitation has been sent to your email.</p>
-            <p>Best regards,<br/>HR Team</p>
-          `
+            <p>Best regards,<br/>Valtara HR Team</p>
+          `,
+          'candidate',
+          'interview-scheduled',
+          event.applicationId
         );
       }
 
+      // RETURN the string to satisfy the Promise<string> type
       return calendarEventId;
+
     } catch (error) {
       console.error('Calendar scheduling error:', error);
       throw new Error('Failed to schedule interview on calendar');
