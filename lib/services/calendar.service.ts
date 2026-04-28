@@ -4,13 +4,18 @@ import prisma from '../db';
 import { NotificationService } from './notification.service';
 
 interface CalendarEvent {
-  summary: string;
+  title: string;
+  summary: string;     // Based on your code, you use .summary
   description: string;
   startTime: Date;
   endTime: Date;
-  attendees: { email: string; name: string }[];
   location?: string;
   meetingLink?: string;
+  attendees: Array<{ email: string; name: string }>;
+  
+  // --- ADD THIS LINE ---
+  applicationId: string; 
+  // ---------------------
 }
 
 export class CalendarService {
