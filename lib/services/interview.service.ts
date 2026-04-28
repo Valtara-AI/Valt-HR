@@ -61,15 +61,12 @@ export class InterviewService {
 
     // Send interview confirmation
     await NotificationService.sendInterviewConfirmation(
-      candidate.email,
-      candidate.phone || '',
-      `${candidate.firstName} ${candidate.lastName}`,
-      job.title,
-      schedule.scheduledAt,
-      schedule.meetingLink || `tel:+1-555-AI-INTERVIEW`,
-      schedule.type
+      candidate.email,           // 1. candidateEmail
+      candidate.firstName,       // 2. candidateName
+      schedule.type,             // 3. interviewType
+      schedule.scheduledAt,      // 4. scheduledAt
+      schedule.meetingLink || `tel:+1-555-AI-INTERVIEW` // 5. meetingLink (Optional)
     );
-
     return interview.id;
   }
 
