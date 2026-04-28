@@ -38,11 +38,18 @@ export class ResumeParserService {
    */
   static async parseResume(fileBuffer: Buffer, fileName: string): Promise<ParsedResumeData> {
     try {
-
       const formData = new FormData();
-      // Instead of creating a new Uint8Array which might link to a SharedArrayBuffer,
-      // use the Buffer's built-in conversion that Blob understands better in this environment.
-      const blob = new Blob([fileBuffer], { type: 'application/pdf' });
+      
+      // We force the conversion to a standard Uint8Array to satisfy the Blob constructor
+      const bufferArray = new Uint8Array(
+        fileBuffer.buffer,
+        fileBuffer.byteOffset,
+        fileBuffer.byteLength
+      );
+      
+      const blob = new Blob([bufferArray], { type: 'application/pdf' });
+      
+      // Use "as any" on the blob to prevent FormData from complaining about standard Blob vs Node Blob
       formData.append('file', blob as any, fileName);
       
       const response = await axios.post(
