@@ -107,13 +107,16 @@ export class CalendarService {
           meetingLink,
         },
       });
-
+      
       // Send confirmation emails
       for (const attendee of event.attendees) {
         await NotificationService.sendEmail(
-          attendee.email,
-          'Interview Scheduled',
-          `
+          attendee.email,                 // 1. to
+          'Interview Scheduled',          // 2. subject
+          'Confirmation: ${event.title}', // 3. htmlBody (or your template string)
+          'candidate',                    // 4. recipientType (Added)
+          'interview-confirmation',       // 5. notificationType (Added)
+           event.applicationId            // 6. applicationId (Added - ensure this exists on your event object)
             <h2>Interview Scheduled</h2>
             <p>Dear ${attendee.name},</p>
             <p><strong>${event.summary}</strong></p>
