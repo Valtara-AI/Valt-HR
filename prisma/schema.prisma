@@ -154,7 +154,6 @@ model Assessment {
   applicationId String?    // To link to the specific application
   totalQuestions Int?      // To link to total questions
   maxScore       Float?    // To link to maximum score
-  status         String?   // To link to status
 
   // ----------------------------
   
