@@ -91,12 +91,12 @@ export class CalendarService {
           },
         },
       });
-
+      
       const calendarEventId = eventResponse.data.id || '';
       const meetingLink = 
         event.meetingLink || 
         eventResponse.data.hangoutLink || 
-        eventResponse.data.conferenceData?.entryPoints?.[0]?.url || 
+        eventResponse.data.conferenceData?.entryPoints?.[0]?.uri || // Changed .url to .uri
         '';
 
       // Update interview with calendar info
