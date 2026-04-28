@@ -38,11 +38,13 @@ export class ResumeParserService {
    */
   static async parseResume(fileBuffer: Buffer, fileName: string): Promise<ParsedResumeData> {
     try {
-      const formData = new FormData();
-      const uint8Array = new Uint8Array(fileBuffer.buffer, fileBuffer.byteOffset, fileBuffer.byteLength);
-      const blob = new Blob([uint8Array], { type: 'application/pdf' });
-      formData.append('file', blob, fileName);
 
+      const formData = new FormData();
+      // Instead of creating a new Uint8Array which might link to a SharedArrayBuffer,
+      // use the Buffer's built-in conversion that Blob understands better in this environment.
+      const blob = new Blob([fileBuffer], { type: 'application/pdf' });
+      formData.append('file', blob as any, fileName);
+      
       const response = await axios.post(
         process.env.RESUME_PARSER_API_URL || 'https://api.affinda.com/v3/resume_parser',
         formData,
