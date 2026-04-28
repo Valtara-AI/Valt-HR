@@ -153,6 +153,10 @@ model Assessment {
   completedAt    DateTime? // Added to fix line 261
   // -------------------------------------------
 
+  // --- ADD THIS RELATION LINE ---
+  candidate      Candidate? @relation(fields: [candidateId], references: [id])
+  // ------------------------------
+
   // --- ADD THESE NEW FIELDS ---
   candidateId  String?     // To link to the candidate
   jobId        String?     // To link to the job
