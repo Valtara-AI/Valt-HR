@@ -301,7 +301,6 @@ export class AssessmentService {
       totalScore,
       maxScore: maxScore,
       percentage,
-      percentage,
       breakdown,
       advancesToPhase2,
       detailedFeedback,
