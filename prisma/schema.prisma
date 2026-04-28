@@ -176,37 +176,42 @@ model Assessment {
 }
 
 model AssessmentResult {
-  id               String   @id @default(cuid())
-  applicationId    String
-  candidateId      String
-  assessmentId     String
-  score            Float    // Added to fix line 240
-  maxScore         Float    // Added to fix line 241
-  percentage       Float    // Added to fix line 242
-  
-  phase            Int      // 1 or 2
-  status           String   @default("pending") // pending, in-progress, completed, expired
-  
+  id             String    @id @default(cuid())
+  applicationId  String
+  candidateId    String
+  assessmentId   String
+  score          Float     // Added to fix line 240
+  maxScore       Float     // Added to fix line 241
+  percentage     Float     // Added to fix line 242
+
+  // --- ADD THESE TWO FIELDS TO FIX THE BUILD ERRORS ---
+  breakdown      Json?     // Added to fix line 243
+  passed         Boolean?  // Added to fix line 246
+  // ----------------------------------------------------
+
+  phase          Int       // 1 or 2
+  status         String    @default("pending") // pending, in-progress, completed, expired
+
   // Responses and scoring
-  answers          Json?    // array of answers
-  technicalScore   Float?
-  cognitiveScore   Float?
+  answers        Json?     // array of answers
+  technicalScore Float?
+  cognitiveScore Float?
   communicationScore Float?
-  cultureFitScore  Float?
-  overallScore     Float?
-  
+  cultureFitScore    Float?
+  overallScore       Float?
+
   // Metadata
-  startedAt        DateTime?
-  completedAt      DateTime?
-  timeSpent        Int?     // seconds
-  
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  
-  application      Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  candidate        Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  assessment       Assessment  @relation(fields: [assessmentId], references: [id])
-  
+  startedAt      DateTime?
+  completedAt    DateTime?
+  timeSpent      Int?      // seconds
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  application    Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  candidate      Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  assessment     Assessment  @relation(fields: [assessmentId], references: [id])
+
   @@index([applicationId, phase])
   @@index([candidateId])
 }
