@@ -142,6 +142,12 @@ model Assessment {
   department       String?
   role             String?
 
+  // --- ADD THESE TO FIX THE CURRENT ERROR ---
+  status         String    @default("not-started")
+  startedAt      DateTime?
+  completedAt    DateTime? // Added to fix line 261
+  // -------------------------------------------
+
   // --- ADD THESE NEW FIELDS ---
   candidateId  String?     // To link to the candidate
   jobId        String?     // To link to the job
