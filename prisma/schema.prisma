@@ -74,7 +74,12 @@ model Application {
   id                 String   @id @default(cuid())
   candidateId        String
   jobId              String
-  
+
+  // --- ADD THESE TWO FIELDS ---
+  assessmentScore  Float?   // Added to fix line 292
+  rejectionReason  String?  // Added to fix line 293
+  // ----------------------------
+
   // Pipeline stage
   stage              String   @default("resume-parsing") 
   // Stages: resume-parsing, resume-scoring, social-validation, assessment-1, assessment-2, ai-interview, human-interview, offer, rejected
