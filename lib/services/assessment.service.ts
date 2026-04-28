@@ -240,7 +240,6 @@ export class AssessmentService {
         score: totalScore,
         maxScore: maxScore,
         percentage,
-        percentage,
         breakdown: breakdown as any,
         answers: submission.answers as any,
         timeSpent: submission.totalTime,
