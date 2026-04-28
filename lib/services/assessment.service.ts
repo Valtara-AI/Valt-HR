@@ -229,12 +229,17 @@ export class AssessmentService {
       breakdown[category].percentage =
         (breakdown[category].score / breakdown[category].maxScore) * 100;
     });
-
+    
     // Determine if advances to Phase 2 (top 30% = score >= 70%)
     const advancesToPhase2 = assessment.phase === 1 && percentage >= 70;
     // Save results
     await prisma.assessmentResult.create({
       data: {
+        // --- ADD THESE TWO LINES ---
+        applicationId: submission.assessmentId, // Or the correct ID variable in your scope
+        phase: assessment.phase, 
+        // ---------------------------
+        
         assessmentId: assessment.id,
         candidateId: submission.candidateId,
         score: totalScore,
@@ -244,7 +249,7 @@ export class AssessmentService {
         answers: submission.answers as any,
         timeSpent: submission.totalTime,
         passed: advancesToPhase2 || (assessment.phase === 2 && percentage >= 60),
-        feedback: detailedFeedback,
+        feedback: detailedFeedback.join('\n'),
       },
     });
 
