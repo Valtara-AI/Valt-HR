@@ -39,13 +39,12 @@ export class ResumeParserService {
   static async parseResume(fileBuffer: Buffer, fileName: string): Promise<ParsedResumeData> {
     try {
       const formData = new FormData();
-      
       // We force the conversion to a standard Uint8Array to satisfy the Blob constructor
       const bufferArray = new Uint8Array(
-        fileBuffer.buffer,
-        fileBuffer.byteOffset,
-        fileBuffer.byteLength
-      );
+      (fileBuffer.buffer as any), // Add "as any" here
+      fileBuffer.byteOffset,
+      fileBuffer.byteLength
+    );
       
       const blob = new Blob([bufferArray], { type: 'application/pdf' });
       
