@@ -21,6 +21,8 @@
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "vite.config.ts", "src/main.tsx"]
-   } 
-  }
+   
+  } 
+
 }
+
