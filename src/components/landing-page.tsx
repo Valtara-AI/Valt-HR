@@ -5,7 +5,6 @@ import {
   Brain,
   CheckCircle,
   Clock,
-  DollarSign,
   Play,
   Shield,
   Sparkles,
@@ -18,7 +17,6 @@ import {
 import { toast } from "sonner";
 import BrandLogo from "./BrandLogo";
 import { ThemeToggle } from "./theme-toggle";
-import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
@@ -31,48 +29,48 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
     {
       icon: Brain,
       iconColor: "icon-accent-1",
-      title: "AI-Powered Assessments",
-      description: "Advanced candidate evaluation with 95%+ accuracy using machine learning algorithms and behavioral analysis."
+      title: "GPT-4-Assisted Interviews & Assessments",
+      description: "Phone interview transcripts and assessment responses are analyzed and graded by GPT-4, so every candidate gets a structured, written evaluation instead of a recruiter's memory of the call."
     },
     {
       icon: Target,
       iconColor: "icon-accent-2",
-      title: "7-Phase Pipeline",
-      description: "Complete recruitment workflow from sourcing to final interviews with automated progress tracking."
+      title: "7-Stage Recruitment Pipeline",
+      description: "Sourcing, application processing, evaluation, assessments, interviews, CRM sync, and final coordination — each candidate's stage and completion status tracked in real time."
     },
     {
       icon: Users,
       iconColor: "icon-accent-3",
-      title: "Smart Candidate Matching", 
-      description: "Real-time profile comparison against job requirements with weighted scoring matrix."
+      title: "Weighted Resume Scoring",
+      description: "Every resume is scored against the job's requirements — skills (40%), experience (30%), education (20%), other factors (10%) — with the breakdown shown, not hidden."
     },
     {
       icon: Clock,
       iconColor: "icon-accent-4",
-      title: "30% Faster Hiring",
-      description: "Reduce time-to-hire from weeks to days with intelligent automation and parallel processing."
+      title: "Automatic Resume Processing",
+      description: "Resumes are parsed, checked for duplicates, and queued for scoring the moment a candidate applies — no manual data entry to get a candidate into the pipeline."
     },
     {
       icon: BarChart3,
       iconColor: "icon-accent-5",
-      title: "Advanced Analytics",
-      description: "Comprehensive insights with predictive analytics, conversion tracking, and performance metrics."
+      title: "Pipeline & Hiring Analytics",
+      description: "Time-to-hire, stage-by-stage funnel counts, and conversion rates calculated from your actual application data — not projected estimates."
     },
     {
       icon: Shield,
       iconColor: "icon-accent-1",
-      title: "Enterprise Security",
-      description: "Bank-level security with compliance management and audit trails for sensitive HR data."
+      title: "Full Scoring Audit Trail",
+      description: "Every score and score change is logged — what changed, when, and by whom (or by the system) — so a hiring decision can always be explained."
     }
   ];
 
   const benefits = [
-    "70% reduction in manual HR tasks",
-    "95%+ resume screening accuracy", 
-    "Real-time pipeline visibility",
-    "Automated interview scheduling",
-    "Integrated CRM and notifications",
-    "Predictive hiring success analytics"
+    "Automatic resume parsing, duplicate detection, and weighted scoring",
+    "GPT-4-assisted phone interview analysis and assessment grading",
+    "Real-time visibility across all 7 pipeline stages",
+    "Automated candidate and stakeholder email/SMS notifications",
+    "CRM sync and calendar-based interview scheduling",
+    "Every scoring decision logged to an audit trail"
   ];
 
   const testimonials = [
@@ -97,10 +95,10 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
   ];
 
   const stats = [
-    { value: "10,000+", label: "Candidates Processed" },
-    { value: "500+", label: "Companies Using" }, 
-    { value: "95%", label: "Accuracy Rate" },
-    { value: "30%", label: "Time Saved" }
+    { value: "7", label: "Pipeline Stages Tracked" },
+    { value: "40/30/20/10", label: "Skills / Experience / Education / Other Weighting" },
+    { value: "GPT-4", label: "Interview & Assessment Grading" },
+    { value: "100%", label: "Scoring Decisions Logged" }
   ];
 
   const handleFeaturesClick = () => {
@@ -116,13 +114,13 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       setTimeout(() => {
         toast.success("Features section", {
           id: "features-nav",
-          description: "Explore our comprehensive AI-powered recruitment tools"
+          description: "Explore what's built into the recruitment pipeline"
         });
       }, 800);
     } else {
-      toast.info("🚀 Comprehensive Features", {
+      toast.info("Recruitment Pipeline Features", {
         id: "features-nav",
-        description: "• AI-Powered Assessments (95%+ accuracy)\n• 7-Phase Recruitment Pipeline\n• Smart Candidate Matching\n• 30% Faster Hiring Process\n• Advanced Analytics & Reporting\n• Enterprise Security & Compliance",
+        description: "• GPT-4-assisted interviews & assessments\n• 7-stage recruitment pipeline\n• Weighted resume scoring (skills/experience/education/other)\n• Automatic resume parsing & duplicate detection\n• Pipeline & hiring analytics\n• Full scoring audit trail",
         duration: 8000
       });
     }
@@ -136,20 +134,12 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
   const handleAboutClick = () => {
     toast.loading("Loading company information...", { id: "about-nav" });
-    
+
     setTimeout(() => {
-      toast.info("🏢 About Valt HR Suite", {
+      toast.info("About Valt HR Suite", {
         id: "about-nav",
-        description: "🚀 Founded: 2025 | Trusted by 500+ companies worldwide\n\n💼 Mission: Revolutionizing recruitment through AI-powered automation\n\n🎯 Key Achievements:\n• 10,000+ candidates processed successfully\n• 95% AI assessment accuracy rate\n• 30% average reduction in hiring time\n• 300% average ROI for clients\n\n🔧 Technology: Advanced machine learning, natural language processing, and predictive analytics\n\n🌟 Support: 24/7 customer success team\n📧 Contact: support@valthrsuite.com\n📞 Sales: +1 (555) 123-4567",
-        duration: 12000,
-        action: {
-          label: "Learn More",
-          onClick: () => {
-            toast.success("Redirecting to company page...", {
-              description: "Opening detailed company information and case studies"
-            });
-          }
-        }
+        description: "Part of the Valtara AI product line, currently in early-adopter testing.\n\nMission: automate the mechanical parts of recruiting — resume parsing, scoring, and pipeline tracking — so hiring decisions are faster and explainable.\n\nWhat's running today:\n• Automatic resume parsing, duplicate detection & weighted scoring\n• GPT-4-assisted interview and assessment grading\n• 7-stage pipeline with real-time tracking\n• Full audit trail on every scoring decision\n\nUse the chat button in the corner to reach us.",
+        duration: 12000
       });
     }, 600);
   };
@@ -159,30 +149,29 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="h-10 w-10 rounded-xl overflow-hidden shrink-0">
                 <BrandLogo width={40} height={40} />
               </div>
               <div>
                 <span className="font-semibold text-lg">Valt HR Suite</span>
-                <Badge variant="secondary" className="ml-2">Premium</Badge>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <Button 
+            <div className="flex flex-wrap items-center gap-4">
+              <Button
                 variant="ghost"
                 onClick={handleFeaturesClick}
               >
                 Features
               </Button>
-              <Button 
+              <Button
                 variant="ghost"
                 onClick={handlePricingClick}
               >
                 Pricing
               </Button>
-              <Button 
+              <Button
                 variant="ghost"
                 onClick={handleAboutClick}
               >
@@ -203,26 +192,28 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         <div className="max-w-7xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-primary/5 px-4 py-2 rounded-full mb-8">
             <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">AI-Powered Recruitment Revolution</span>
+            <span className="text-sm font-medium">Explainable Scoring, Not a Black Box</span>
           </div>
-          
+
           <h1 className="text-5xl md:text-6xl font-semibold mb-6 heading-text">
-            Transform Your
+            Know Why
             <br />
-            <span className="gradient-text-primary">Hiring Process</span>
+            <span className="gradient-text-primary">Every Candidate Scored</span>
           </h1>
-          
+
           <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-            End-to-end recruitment automation that reduces manual tasks by 70% while improving 
-            candidate quality and hiring speed. From sourcing to onboarding, powered by AI.
+            Valt HR Suite parses and scores every resume against the job's real requirements —
+            skills, experience, education — instead of a gut call. GPT-4 handles interview
+            transcript analysis and assessment grading, and every candidate moves through a
+            7-stage pipeline with a full audit trail on every score.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Button size="lg" onClick={onGetStarted} className="text-lg px-8 py-6">
               <Play className="h-5 w-5 mr-2" />
-              Start Free Trial
+              Get Started
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-6">
+            <Button size="lg" variant="outline" className="text-lg px-8 py-6" onClick={onGetStarted}>
               <BarChart3 className="h-5 w-5 mr-2" />
               View Demo
             </Button>
@@ -244,9 +235,9 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       <section className="py-20 px-6 bg-muted/30" data-section="features">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-semibold mb-4">Powerful Features</h2>
+            <h2 className="text-4xl font-semibold mb-4">What's Running In the Pipeline</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to automate and optimize your recruitment process
+              Six systems working on every application, from the moment a resume lands
             </p>
           </div>
           
@@ -278,18 +269,18 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-4xl font-semibold mb-6">
-                Why Choose Our
-                <span className="text-primary"> HR Assistant?</span>
+                Built Around
+                <span className="text-primary"> a Real Pipeline</span>
               </h2>
               <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                Built for modern HR teams who demand efficiency, accuracy, and results. 
-                Our platform combines cutting-edge AI with intuitive design.
+                Not a dashboard bolted onto a black box — every score, stage, and
+                notification below is generated by the system as candidates move through it.
               </p>
-              
+
               <div className="space-y-4">
                 {benefits.map((benefit, index) => (
                   <div key={index} className="flex items-center gap-3">
-                    <div className="p-1 bg-green-100 rounded-full">
+                    <div className="p-1 bg-primary/10 rounded-full">
                       <CheckCircle className="h-4 w-4 text-green-600" />
                     </div>
                     <span className="font-medium">{benefit}</span>
@@ -311,28 +302,28 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                       <TrendingUp className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <div className="font-semibold text-lg">ROI Impact</div>
-                      <div className="text-muted-foreground">Average 300% return on investment</div>
+                      <div className="font-semibold text-lg">Weighted Scoring</div>
+                      <div className="text-muted-foreground">Skills 40% · Experience 30% · Education 20% · Other 10%</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-4">
                     <div className="p-3 bg-primary/20 rounded-lg">
                       <Clock className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <div className="font-semibold text-lg">Time Savings</div>
-                      <div className="text-muted-foreground">18 days average time-to-hire</div>
+                      <div className="font-semibold text-lg">Time-to-Hire</div>
+                      <div className="text-muted-foreground">Calculated from your own pipeline data</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-4">
                     <div className="p-3 bg-primary/20 rounded-lg">
-                      <DollarSign className="h-6 w-6 text-primary" />
+                      <Shield className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <div className="font-semibold text-lg">Cost Reduction</div>
-                      <div className="text-muted-foreground">$3,200 average cost per hire</div>
+                      <div className="font-semibold text-lg">Audit Trail</div>
+                      <div className="text-muted-foreground">Every score change logged — who, when, why</div>
                     </div>
                   </div>
                 </div>
@@ -346,9 +337,9 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       <section className="py-20 px-6 bg-muted/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-semibold mb-4">Trusted by Industry Leaders</h2>
+            <h2 className="text-4xl font-semibold mb-4">Early Feedback</h2>
             <p className="text-xl text-muted-foreground">
-              See what our customers say about transforming their hiring process
+              What early adopters are saying about the pipeline
             </p>
           </div>
           
@@ -386,34 +377,35 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       <section className="py-20 px-6 bg-primary text-primary-foreground">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-semibold mb-6">
-            Ready to Transform Your Hiring?
+            See Your Own Resumes Scored
           </h2>
           <p className="text-xl mb-8 opacity-90 leading-relaxed">
-            Join hundreds of companies already using our AI-powered recruitment platform. 
-            Start your free trial today and see results in weeks, not months.
+            Upload a resume, see how it scores against a job's real requirements, and watch
+            it move through the pipeline from day one.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              variant="secondary" 
+            <Button
+              size="lg"
+              variant="secondary"
               className="text-lg px-8 py-6"
               onClick={onGetStarted}
             >
               <Play className="h-5 w-5 mr-2" />
-              Start Free Trial
+              Get Started
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="text-lg px-8 py-6 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
+            <Button
+              size="lg"
+              variant="outline"
+              className="text-lg px-8 py-6 bg-transparent border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
+              onClick={onGetStarted}
             >
               Schedule Demo
             </Button>
           </div>
-          
+
           <p className="text-sm mt-6 opacity-70">
-            No credit card required • 14-day free trial • Cancel anytime
+            No credit card required
           </p>
         </div>
       </section>
@@ -438,7 +430,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           </div>
           
           <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-            © 2025 Valt HR Suite. All rights reserved. Built with AI for the future of recruitment.
+            © 2025 Valt HR Suite, a Valtara AI product. All rights reserved.
           </div>
         </div>
       </footer>
