@@ -8,7 +8,6 @@ import {
   Play,
   Shield,
   Sparkles,
-  Star,
   Target,
   TrendingUp,
   Users,
@@ -73,24 +72,18 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
     "Every scoring decision logged to an audit trail"
   ];
 
-  const testimonials = [
+  const personas = [
     {
-      quote: "Transformed our hiring process completely. We're now hiring top talent 40% faster with better quality matches.",
-      author: "Sarah Mitchell",
-      role: "VP of Talent Acquisition",
-      company: "TechFlow Inc"
+      role: "Talent Acquisition Leaders",
+      statement: "Every resume scored against the job's real requirements — skills, experience, education — with the 40/30/20/10 weighting shown, not a black-box number."
     },
     {
-      quote: "The AI assessments are incredibly accurate. We've seen a 60% improvement in new hire retention rates.",
-      author: "Michael Chen", 
-      role: "Head of HR",
-      company: "InnovateCorp"
+      role: "Heads of HR",
+      statement: "GPT-4 grades every phone interview transcript and assessment response, so evaluations don't ride on a recruiter's memory of the call."
     },
     {
-      quote: "Game-changing analytics. Finally have clear visibility into our recruitment ROI and bottlenecks.",
-      author: "Emma Rodriguez",
-      role: "Chief People Officer", 
-      company: "ScaleUp Solutions"
+      role: "Chief People Officers",
+      statement: "Every score and score change is logged — what changed, when, and by whom — so a hiring decision can always be explained."
     }
   ];
 
@@ -333,39 +326,27 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Who It's Built For */}
       <section className="py-20 px-6 bg-muted/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-semibold mb-4">Early Feedback</h2>
+            <h2 className="text-4xl font-semibold mb-4">Built For Teams Like Yours</h2>
             <p className="text-xl text-muted-foreground">
-              What early adopters are saying about the pipeline
+              Illustrative use cases, not customer quotes — Valt HR Suite is in early-adopter testing
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
+            {personas.map((persona, index) => (
               <Card key={index} className="relative">
                 <CardContent className="p-8">
-                  <div className="flex mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-primary text-primary" />
-                    ))}
+                  <div className="p-2 bg-primary/10 rounded-full w-fit mb-4">
+                    <Award className="h-4 w-4 text-primary" />
                   </div>
                   <blockquote className="text-muted-foreground mb-6 leading-relaxed">
-                    "{testimonial.quote}"
+                    "{persona.statement}"
                   </blockquote>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-full">
-                      <Award className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <div className="font-semibold">{testimonial.author}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {testimonial.role}, {testimonial.company}
-                      </div>
-                    </div>
-                  </div>
+                  <div className="font-semibold">{persona.role}</div>
                 </CardContent>
               </Card>
             ))}
