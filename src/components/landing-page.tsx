@@ -411,7 +411,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           </div>
           
           <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-            © 2025 Valt HR Suite, a Valtara AI product. All rights reserved.
+            © {new Date().getFullYear()} Valtara Inc. All rights reserved.
           </div>
         </div>
       </footer>
